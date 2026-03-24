@@ -10,6 +10,8 @@ import { fetchCoinDetail } from '../api';
 import { useAppSelector } from '../store/hooks';
 import type { CoinDetail as CoinDetailType } from '../types/coin';
 import { formatCurrency, formatMarketCap, getPriceChangeColour } from '../utils/formatters';
+import PriceChart from '../components/PriceChart';
+import useCoinHistory from '../hooks/useCoinHistory';
 
 // A small reusable stat block — used repeatedly on this page
 // Defined here rather than a separate file since it's only used here
@@ -37,6 +39,10 @@ const CoinDetail = () => {
   const [coin, setCoin] = useState<CoinDetailType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Pull in price history via our custom hook
+  // We pass coinId with a fallback empty string — the hook guards against empty coinId internally
+  const { priceHistory, loading: chartLoading, error: chartError, timeRange, setTimeRange } = useCoinHistory(coinId ?? '', currency);
 
   useEffect(() => {
     // Guard clause — coinId should always exist given our route definition
@@ -205,6 +211,17 @@ const CoinDetail = () => {
                   : 'N/A'}
               />
             </div>
+
+            {/* Price history chart */}
+                <PriceChart
+                    priceHistory={priceHistory}
+                    currency={currency}
+                    loading={chartLoading}
+                    error={chartError}
+                    timeRange={timeRange}
+                    onTimeRangeChange={setTimeRange}
+                    coinName={coin.name}
+                />
 
             {/* Description — strip HTML tags that CoinGecko includes */}
             {coin.description?.en && (
