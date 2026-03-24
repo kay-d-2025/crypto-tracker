@@ -8,6 +8,10 @@
 import axios from 'axios';
 import type { Coin, CoinDetail, SupportedCurrency, PricePoint } from '../types/coin';
 
+// Pauses execution for a given number of milliseconds.
+// Used to wait before retrying a failed request.
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 // CoinGecko's free public API — no key required for these endpoints
 const BASE_URL = 'https://api.coingecko.com/api/v3';
 
@@ -29,18 +33,38 @@ export async function fetchTopCoins(
   currency: SupportedCurrency = 'zar',
   limit: number = 10
 ): Promise<Coin[]> {
-  const response = await api.get<Coin[]>('/coins/markets', {
-    params: {
-      vs_currency: currency,       // price denomination
-      order: 'market_cap_desc',    // sorted highest market cap first
-      per_page: limit,
-      page: 1,
-      sparkline: false,            // we don't need the 7d sparkline data here
-      price_change_percentage: '24h',
-    },
-  });
+  // Retry up to 3 times with a 2 second gap between attempts.
+  // This handles transient rate limit errors gracefully without
+  // requiring the user to manually refresh the page.
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const response = await api.get<Coin[]>('/coins/markets', {
+        params: {
+          vs_currency: currency,
+          order: 'market_cap_desc',
+          per_page: limit,
+          page: 1,
+          sparkline: false,
+          price_change_percentage: '24h',
+        },
+      });
+      return response.data;
+    } catch (err: any) {
+      const isRateLimit = err?.response?.status === 429;
+      const isLastAttempt = attempt === 3;
 
-  return response.data;
+      if (isRateLimit && !isLastAttempt) {
+        console.warn(`Rate limited — retrying in 2s (attempt ${attempt}/3)`);
+        await delay(2000);
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  // TypeScript requires a return here even though the loop always
+  // either returns or throws before reaching this point
+  throw new Error('Failed to fetch coins after 3 attempts');
 }
 
 // --- COIN DETAIL PAGE ---
