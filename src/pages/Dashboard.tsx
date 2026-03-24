@@ -10,6 +10,7 @@ import { setCoins } from '../store/coinsSlice';
 import type { Coin } from '../types/coin';
 import CoinCard from '../components/CoinCard';
 import CurrencySelector from '../components/CurrencySelector';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Dashboard = () => {
   const dispatch = useAppDispatch();
@@ -76,11 +77,7 @@ const Dashboard = () => {
         </div>
 
         {/* Loading state */}
-        {loading && (
-          <div style={{ textAlign: 'center', padding: '48px', color: '#6b7280' }}>
-            Loading...
-          </div>
-        )}
+        {loading && <LoadingSpinner message="Fetching top cryptocurrencies..." />}
 
         {/* Error state */}
         {error && (

@@ -17,6 +17,7 @@ import type { PricePoint, SupportedCurrency } from '../types/coin';
 import { formatCurrency } from '../utils/formatters';
 import type { TimeRange } from '../hooks/useCoinHistory';
 import { TIME_RANGES } from '../hooks/useCoinHistory';
+import LoadingSpinner from './LoadingSpinner';
 
 interface PriceChartProps {
   priceHistory: PricePoint[];
@@ -142,11 +143,7 @@ const PriceChart = ({
       </div>
 
       {/* Loading state */}
-      {loading && (
-        <div style={{ textAlign: 'center', padding: '48px', color: '#6b7280' }}>
-          Loading chart...
-        </div>
-      )}
+      {loading && <LoadingSpinner message="Loading chart..." />}
 
       {/* Error state */}
       {error && (

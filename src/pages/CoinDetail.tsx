@@ -12,6 +12,7 @@ import type { CoinDetail as CoinDetailType } from '../types/coin';
 import { formatCurrency, formatMarketCap, getPriceChangeColour } from '../utils/formatters';
 import PriceChart from '../components/PriceChart';
 import useCoinHistory from '../hooks/useCoinHistory';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 // A small reusable stat block — used repeatedly on this page
 // Defined here rather than a separate file since it's only used here
@@ -101,11 +102,7 @@ const CoinDetail = () => {
         </button>
 
         {/* Loading state */}
-        {loading && (
-          <div style={{ textAlign: 'center', padding: '48px', color: '#6b7280' }}>
-            Loading...
-          </div>
-        )}
+        {loading && <LoadingSpinner message="Fetching coin details..." />}
 
         {/* Error state */}
         {error && (
