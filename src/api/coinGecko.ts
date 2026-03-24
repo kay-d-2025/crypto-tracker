@@ -71,17 +71,32 @@ export async function fetchTopCoins(
 // Fetches rich detail for a single coin by its CoinGecko ID (e.g. "bitcoin")
 // The detail endpoint returns a lot more data than the markets endpoint
 export async function fetchCoinDetail(coinId: string): Promise<CoinDetail> {
-  const response = await api.get<CoinDetail>(`/coins/${coinId}`, {
-    params: {
-      localization: false,      // skip translations to keep response smaller
-      tickers: false,           // we don't need exchange ticker data
-      market_data: true,        // we DO need market data (price, cap, etc.)
-      community_data: false,
-      developer_data: false,
-    },
-  });
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const response = await api.get<CoinDetail>(`/coins/${coinId}`, {
+        params: {
+          localization: false,
+          tickers: false,
+          market_data: true,
+          community_data: false,
+          developer_data: false,
+        },
+      });
+      return response.data;
+    } catch (err: any) {
+      const isRateLimit = err?.response?.status === 429;
+      const isLastAttempt = attempt === 3;
 
-  return response.data;
+      if (isRateLimit && !isLastAttempt) {
+        console.warn(`Rate limited — retrying in 2s (attempt ${attempt}/3)`);
+        await delay(2000);
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  throw new Error('Failed to fetch coin detail after 3 attempts');
 }
 
 // --- HISTORICAL CHART DATA ---
@@ -93,17 +108,32 @@ export async function fetchCoinHistory(
   currency: SupportedCurrency = 'zar',
   days: number = 7
 ): Promise<PricePoint[]> {
-  const response = await api.get<{ prices: PricePoint[] }>(
-    `/coins/${coinId}/market_chart`,
-    {
-      params: {
-        vs_currency: currency,
-        days,
-        // CoinGecko auto-selects granularity:
-        // 1 day = hourly, 7-90 days = daily, 90+ days = weekly
-      },
-    }
-  );
+  // Same retry pattern as fetchTopCoins — waits 2 seconds between attempts
+  // to handle CoinGecko's free tier rate limiting gracefully
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const response = await api.get<{ prices: PricePoint[] }>(
+        `/coins/${coinId}/market_chart`,
+        {
+          params: {
+            vs_currency: currency,
+            days,
+          },
+        }
+      );
+      return response.data.prices;
+    } catch (err: any) {
+      const isRateLimit = err?.response?.status === 429;
+      const isLastAttempt = attempt === 3;
 
-  return response.data.prices;
+      if (isRateLimit && !isLastAttempt) {
+        console.warn(`Rate limited — retrying in 2s (attempt ${attempt}/3)`);
+        await delay(2000);
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  throw new Error('Failed to fetch coin history after 3 attempts');
 }
