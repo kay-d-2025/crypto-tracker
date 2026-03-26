@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Crypto Tracker</title>
+    <script>
+      // This script redirects 404s back to the index page
+      // while preserving the path so React Router can handle it.
+      // This is the standard workaround for React Router on GitHub Pages.
+      var path = window.location.pathname;
+      window.location.replace(
+        window.location.origin + '/crypto-tracker/?path=' + encodeURIComponent(path)
+      );
+    </script>
+  </head>
+  <body></body>
+</html>

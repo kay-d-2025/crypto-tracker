@@ -7,6 +7,18 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import CoinDetail from './pages/CoinDetail';
 import NotFound from './pages/NotFound';
+import { useEffect } from 'react';
+
+// Handle GitHub Pages redirect from 404.html
+// When a user hits a direct URL, GitHub Pages serves 404.html which
+// redirects here with the path as a query param — we restore it
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const path = params.get('path');
+  if (path) {
+    window.history.replaceState(null, '', path);
+  }
+}, []);
 
 const App = () => {
   return (
