@@ -1,50 +1,51 @@
 // src/components/CurrencySelector.tsx
-// Dropdown that lets the user switch between ZAR, USD, EUR, BTC.
-// When changed, it dispatches to Redux — this updates the currency
-// globally so both Dashboard and CoinDetail reflect the change instantly.
+// Redesigned to be more visually intuitive — pill buttons instead of
+// a dropdown, so the user can see all options at a glance.
 
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { setCurrency } from '../store/currencySlice';
 import type { SupportedCurrency } from '../types/coin';
 
-// The options we display in the dropdown
-const CURRENCY_OPTIONS: { value: SupportedCurrency; label: string }[] = [
-  { value: 'zar', label: 'ZAR (R)' },
-  { value: 'usd', label: 'USD ($)' },
-  { value: 'eur', label: 'EUR (€)' },
-  { value: 'btc', label: 'BTC (₿)' },
+const CURRENCY_OPTIONS: { value: SupportedCurrency; label: string; symbol: string }[] = [
+  { value: 'zar', label: 'ZAR', symbol: 'R' },
+  { value: 'usd', label: 'USD', symbol: '$' },
+  { value: 'eur', label: 'EUR', symbol: '€' },
+  { value: 'btc', label: 'BTC', symbol: '₿' },
 ];
 
 const CurrencySelector = () => {
   const dispatch = useAppDispatch();
-  // Read current selection from Redux store
   const selected = useAppSelector(state => state.currency.selected);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    // Cast is safe here because the select options are derived from SupportedCurrency
-    dispatch(setCurrency(e.target.value as SupportedCurrency));
-  };
-
   return (
-    <select
-      value={selected}
-      onChange={handleChange}
-      style={{
-        backgroundColor: '#2a2a3e',
-        color: '#f1f1f1',
-        border: '1px solid #3e3e5e',
-        borderRadius: '8px',
-        padding: '8px 12px',
-        fontSize: '14px',
-        cursor: 'pointer',
-      }}
-    >
+    <div style={{
+      display: 'flex',
+      gap: '6px',
+      backgroundColor: '#1a1a2e',
+      padding: '4px',
+      borderRadius: '12px',
+      border: '1px solid #2e2e4e',
+    }}>
       {CURRENCY_OPTIONS.map(option => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
+        <button
+          key={option.value}
+          onClick={() => dispatch(setCurrency(option.value))}
+          style={{
+            backgroundColor: selected === option.value ? '#6366f1' : 'transparent',
+            color: selected === option.value ? '#fff' : '#6b7280',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '6px 12px',
+            fontSize: '13px',
+            fontWeight: selected === option.value ? 600 : 400,
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          {option.symbol} {option.label}
+        </button>
       ))}
-    </select>
+    </div>
   );
 };
 

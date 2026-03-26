@@ -1,8 +1,6 @@
 // src/pages/CoinDetail.tsx
-// Detail page for a single coin — reached by clicking a card on the Dashboard.
-// We extract the coin ID from the URL using useParams, then fetch rich data
-// from the CoinGecko /coins/{id} endpoint which has far more detail than
-// the markets endpoint used on the Dashboard.
+// Redesigned with a friendlier layout — clear sections, tooltips on all
+// stats, and a welcoming tone for users new to crypto.
 
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -13,20 +11,29 @@ import { formatCurrency, formatMarketCap, getPriceChangeColour } from '../utils/
 import PriceChart from '../components/PriceChart';
 import useCoinHistory from '../hooks/useCoinHistory';
 import LoadingSpinner from '../components/LoadingSpinner';
+import Tooltip from '../components/Tooltip';
+import { TOOLTIPS } from '../utils/tooltips';
 
-// A small reusable stat block — used repeatedly on this page
-// Defined here rather than a separate file since it's only used here
-const StatCard = ({ label, value }: { label: string; value: string }) => (
+// Stat card now accepts ReactNode for label so we can wrap with Tooltip
+const StatCard = ({ label, value }: { label: React.ReactNode; value: string }) => (
   <div style={{
-    backgroundColor: '#1e1e2e',
-    border: '1px solid #2e2e3e',
-    borderRadius: '10px',
+    backgroundColor: '#16162a',
+    border: '1px solid #2e2e4e',
+    borderRadius: '12px',
     padding: '16px',
+    transition: 'border-color 0.2s ease',
   }}>
-    <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px' }}>
+    <div style={{
+      fontSize: '12px',
+      color: '#6b7280',
+      marginBottom: '8px',
+      fontWeight: 500,
+      textTransform: 'uppercase',
+      letterSpacing: '0.05em',
+    }}>
       {label}
     </div>
-    <div style={{ fontSize: '16px', fontWeight: 600, color: '#f1f1f1' }}>
+    <div style={{ fontSize: '16px', fontWeight: 700, color: '#f1f1f1' }}>
       {value}
     </div>
   </div>
@@ -41,13 +48,10 @@ const CoinDetail = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Pull in price history via our custom hook
-  // We pass coinId with a fallback empty string — the hook guards against empty coinId internally
-  const { priceHistory, loading: chartLoading, error: chartError, timeRange, setTimeRange } = useCoinHistory(coinId ?? '', currency);
+  const { priceHistory, loading: chartLoading, error: chartError, timeRange, setTimeRange } =
+    useCoinHistory(coinId ?? '', currency);
 
   useEffect(() => {
-    // Guard clause — coinId should always exist given our route definition
-    // but TypeScript requires us to handle the undefined case
     if (!coinId) return;
 
     const loadCoin = async () => {
@@ -65,10 +69,8 @@ const CoinDetail = () => {
     };
 
     loadCoin();
-  }, [coinId]); // Only re-fetch if the coinId in the URL changes
+  }, [coinId]);
 
-  // Helper to safely get a market data value for the selected currency
-  // Falls back to 0 if the currency key doesn't exist in the response
   const getMarketValue = (record: Record<string, number> | undefined): number => {
     if (!record) return 0;
     return record[currency] ?? 0;
@@ -77,167 +79,220 @@ const CoinDetail = () => {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: '#13131f',
+      backgroundColor: '#0f0f1a',
       color: '#f1f1f1',
-      padding: '32px 24px',
       fontFamily: 'Inter, system-ui, sans-serif',
     }}>
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+      {/* Top nav bar */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1a1a3e 0%, #0f0f1a 100%)',
+        borderBottom: '1px solid #2e2e4e',
+        padding: '16px 24px',
+      }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <button
+            onClick={() => navigate('/')}
+            style={{
+              backgroundColor: 'transparent',
+              border: '1px solid #2e2e4e',
+              borderRadius: '8px',
+              color: '#818cf8',
+              cursor: 'pointer',
+              padding: '8px 16px',
+              fontSize: '14px',
+              fontWeight: 500,
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = '#6366f1'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = '#2e2e4e'}
+          >
+            ← Back to Dashboard
+          </button>
+        </div>
+      </div>
 
-        {/* Back button */}
-        <button
-          onClick={() => navigate('/')}
-          style={{
-            backgroundColor: 'transparent',
-            border: '1px solid #2e2e3e',
-            borderRadius: '8px',
-            color: '#6b7280',
-            cursor: 'pointer',
-            padding: '8px 16px',
-            marginBottom: '24px',
-            fontSize: '14px',
-          }}
-        >
-          ← Back to Dashboard
-        </button>
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 24px 48px' }}>
+        {loading && <LoadingSpinner message="Loading coin details..." />}
 
-        {/* Loading state */}
-        {loading && <LoadingSpinner message="Fetching coin details..." />}
-
-        {/* Error state */}
         {error && (
           <div style={{
             backgroundColor: '#2d1515',
             border: '1px solid #dc2626',
-            borderRadius: '8px',
-            padding: '16px',
-            color: '#dc2626',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            color: '#f87171',
+            fontSize: '14px',
           }}>
-            {error}
+            ⚠️ {error}
           </div>
         )}
 
-        {/* Main content — only renders once we have data */}
         {!loading && !error && coin && (
           <>
             {/* Coin header */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '16px',
+              gap: '20px',
               marginBottom: '32px',
+              flexWrap: 'wrap',
             }}>
               <img
                 src={coin.image.large}
                 alt={`${coin.name} logo`}
-                width={64}
-                height={64}
-                style={{ borderRadius: '50%' }}
+                width={72}
+                height={72}
+                style={{ borderRadius: '50%', boxShadow: '0 0 24px rgba(99,102,241,0.3)' }}
               />
-              <div>
-                <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 700 }}>
-                  {coin.name}
-                </h1>
-                <span style={{
-                  fontSize: '14px',
-                  color: '#6b7280',
-                  textTransform: 'uppercase',
-                }}>
-                  {coin.symbol} — Rank #{coin.market_cap_rank}
-                </span>
-              </div>
-
-              {/* Current price + 24h change — prominent position */}
-              <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-                <div style={{ fontSize: '28px', fontWeight: 700 }}>
-                  {formatCurrency(getMarketValue(coin.market_data.current_price), currency)}
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 800 }}>
+                    {coin.name}
+                  </h1>
+                  {/* Rank badge */}
+                  <span style={{
+                    backgroundColor: '#1e1e3e',
+                    border: '1px solid #3e3e6e',
+                    borderRadius: '6px',
+                    padding: '2px 10px',
+                    fontSize: '12px',
+                    color: '#818cf8',
+                    fontWeight: 600,
+                  }}>
+                    <Tooltip text={TOOLTIPS.rank}>
+                      #{coin.market_cap_rank}
+                    </Tooltip>
+                  </span>
                 </div>
                 <div style={{
                   fontSize: '14px',
-                  color: getPriceChangeColour(coin.market_data.price_change_percentage_24h),
+                  color: '#6b7280',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  marginTop: '4px',
                 }}>
-                  {coin.market_data.price_change_percentage_24h > 0 ? '▲' : '▼'}{' '}
-                  {Math.abs(coin.market_data.price_change_percentage_24h).toFixed(2)}% (24h)
+                  {coin.symbol}
+                </div>
+              </div>
+
+              {/* Price section */}
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-1px' }}>
+                  {formatCurrency(getMarketValue(coin.market_data.current_price), currency)}
+                </div>
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  backgroundColor: coin.market_data.price_change_percentage_24h >= 0
+                    ? '#0f2d1f' : '#2d0f0f',
+                  color: getPriceChangeColour(coin.market_data.price_change_percentage_24h),
+                  borderRadius: '8px',
+                  padding: '4px 12px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  marginTop: '6px',
+                }}>
+                  <Tooltip text={TOOLTIPS.change24h}>
+                    {coin.market_data.price_change_percentage_24h >= 0 ? '▲' : '▼'}{' '}
+                    {Math.abs(coin.market_data.price_change_percentage_24h).toFixed(2)}% today
+                  </Tooltip>
                 </div>
               </div>
             </div>
 
+            {/* Price chart */}
+            <PriceChart
+              priceHistory={priceHistory}
+              currency={currency}
+              loading={chartLoading}
+              error={chartError}
+              timeRange={timeRange}
+              onTimeRangeChange={setTimeRange}
+              coinName={coin.name}
+            />
+
             {/* Stats grid */}
+            <p style={{
+              fontSize: '13px',
+              color: '#4e4e7e',
+              marginBottom: '12px',
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}>
+              Key Statistics
+            </p>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
               gap: '12px',
               marginBottom: '32px',
             }}>
               <StatCard
-                label="Market Cap"
+                label={<Tooltip text={TOOLTIPS.marketCap}>Market Cap</Tooltip>}
                 value={formatMarketCap(getMarketValue(coin.market_data.market_cap), currency)}
               />
               <StatCard
-                label="24h Volume"
+                label={<Tooltip text={TOOLTIPS.volume24h}>24h Volume</Tooltip>}
                 value={formatMarketCap(getMarketValue(coin.market_data.total_volume), currency)}
               />
               <StatCard
-                label="7d Change"
+                label={<Tooltip text={TOOLTIPS.change7d}>7 Day Change</Tooltip>}
                 value={`${coin.market_data.price_change_percentage_7d?.toFixed(2) ?? 'N/A'}%`}
               />
               <StatCard
-                label="30d Change"
+                label={<Tooltip text={TOOLTIPS.change30d}>30 Day Change</Tooltip>}
                 value={`${coin.market_data.price_change_percentage_30d?.toFixed(2) ?? 'N/A'}%`}
               />
               <StatCard
-                label="Circulating Supply"
+                label={<Tooltip text={TOOLTIPS.circulatingSupply}>Circulating Supply</Tooltip>}
                 value={coin.market_data.circulating_supply
                   ? coin.market_data.circulating_supply.toLocaleString()
                   : 'N/A'}
               />
               <StatCard
-                label="Max Supply"
+                label={<Tooltip text={TOOLTIPS.maxSupply}>Max Supply</Tooltip>}
                 value={coin.market_data.max_supply
                   ? coin.market_data.max_supply.toLocaleString()
-                  : 'Unlimited'}
+                  : 'Unlimited ♾️'}
               />
               <StatCard
-                label="All Time High"
+                label={<Tooltip text={TOOLTIPS.ath}>All Time High</Tooltip>}
                 value={formatCurrency(getMarketValue(coin.market_data.ath), currency)}
               />
               <StatCard
-                label="ATH Date"
+                label={<Tooltip text={TOOLTIPS.athDate}>ATH Date</Tooltip>}
                 value={coin.market_data.ath_date?.[currency]
-                  ? new Date(coin.market_data.ath_date[currency]).toLocaleDateString()
+                  ? new Date(coin.market_data.ath_date[currency]).toLocaleDateString('en-ZA', {
+                      year: 'numeric', month: 'long', day: 'numeric'
+                    })
                   : 'N/A'}
               />
             </div>
 
-            {/* Price history chart */}
-                <PriceChart
-                    priceHistory={priceHistory}
-                    currency={currency}
-                    loading={chartLoading}
-                    error={chartError}
-                    timeRange={timeRange}
-                    onTimeRangeChange={setTimeRange}
-                    coinName={coin.name}
-                />
-
-            {/* Description — strip HTML tags that CoinGecko includes */}
+            {/* About section */}
             {coin.description?.en && (
               <div style={{
-                backgroundColor: '#1e1e2e',
-                border: '1px solid #2e2e3e',
-                borderRadius: '10px',
-                padding: '20px',
+                backgroundColor: '#16162a',
+                border: '1px solid #2e2e4e',
+                borderRadius: '12px',
+                padding: '24px',
               }}>
-                <h2 style={{ fontSize: '16px', marginBottom: '12px', color: '#a0a0b0' }}>
+                <p style={{
+                  fontSize: '13px',
+                  color: '#4e4e7e',
+                  marginBottom: '12px',
+                  fontWeight: 500,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}>
                   About {coin.name}
-                </h2>
+                </p>
                 <p style={{
                   fontSize: '14px',
-                  lineHeight: '1.7',
+                  lineHeight: '1.8',
                   color: '#9ca3af',
-                  // CoinGecko descriptions contain raw HTML — we render as text
-                  // In a production app we'd use a sanitised HTML renderer
-                  // but for this assessment plain text is fine
                 }}
                   dangerouslySetInnerHTML={{
                     __html: coin.description.en.split('. ').slice(0, 4).join('. ') + '.'

@@ -1,42 +1,66 @@
 // src/store/coinsSlice.ts
-// This slice caches the coin list fetched from CoinGecko.
-// Caching means if the user navigates away and comes back,
-// we show the cached data instantly while a background refresh happens.
-// This is one of the bonus mark items in the spec.
+// Updated to cache results per currency — previously we only stored one
+// list regardless of currency, meaning switching USD → ZAR → USD would
+// trigger 3 API calls. Now each currency has its own cached list.
 
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Coin } from '../types/coin';
+import type { Coin, SupportedCurrency } from '../types/coin';
+
+// How long before we consider the cache stale and re-fetch (5 minutes)
+export const CACHE_DURATION_MS = 5 * 60 * 1000;
+
+interface CurrencyCache {
+  list: Coin[];
+  lastUpdated: number; // Unix timestamp in ms
+}
 
 interface CoinsState {
-  // The cached list of coins from the last successful API call
-  list: Coin[];
-  // We track when the cache was last updated so we can decide
-  // whether to re-fetch or use what we have (cache invalidation)
-  lastUpdated: number | null; // Unix timestamp in ms
+  // Key is the currency string e.g. 'zar', 'usd'
+  // Each currency gets its own cached list and timestamp
+  cachesByCurrency: Partial<Record<SupportedCurrency, CurrencyCache>>;
 }
 
 const initialState: CoinsState = {
-  list: [],
-  lastUpdated: null,
+  cachesByCurrency: {},
 };
 
 const coinsSlice = createSlice({
   name: 'coins',
   initialState,
   reducers: {
-    // Called after a successful API fetch — stores the result and timestamps it
-    setCoins(state, action: PayloadAction<Coin[]>) {
-      state.list = action.payload;
-      state.lastUpdated = Date.now();
+    setCoins(
+      state,
+      action: PayloadAction<{ coins: Coin[]; currency: SupportedCurrency }>
+    ) {
+      const { coins, currency } = action.payload;
+      // Store the result under the currency key with a fresh timestamp
+      state.cachesByCurrency[currency] = {
+        list: coins,
+        lastUpdated: Date.now(),
+      };
     },
-    // Called when we want to force a fresh fetch (e.g. manual refresh button)
     clearCoins(state) {
-      state.list = [];
-      state.lastUpdated = null;
+      state.cachesByCurrency = {};
     },
   },
 });
 
 export const { setCoins, clearCoins } = coinsSlice.actions;
 export default coinsSlice.reducer;
+
+// Selector that returns cached coins for a given currency if still fresh,
+// or null if the cache is missing or expired.
+// Putting this logic here keeps it close to the state it operates on.
+export const selectCachedCoins = (
+  state: { coins: CoinsState },
+  currency: SupportedCurrency
+): Coin[] | null => {
+  const cache = state.coins.cachesByCurrency[currency];
+  if (!cache) return null;
+
+  const isStale = Date.now() - cache.lastUpdated > CACHE_DURATION_MS;
+  if (isStale) return null;
+
+  return cache.list;
+};

@@ -1,13 +1,13 @@
 // src/components/CoinCard.tsx
-// A single card representing one cryptocurrency in the list.
-// This is a "presentational" component — it receives data via props
-// and only worries about how to display it, not where data comes from.
-// Keeping it separate from the page means we can reuse it anywhere.
+// Redesigned to feel warmer and more approachable.
+// Uses a card-style layout with a subtle gradient on hover,
+// clear visual hierarchy, and friendly colour coding.
 
 import { useNavigate } from 'react-router-dom';
-import type { Coin } from '../types/coin';
-import type { SupportedCurrency } from '../types/coin';
+import type { Coin, SupportedCurrency } from '../types/coin';
 import { formatCurrency, formatMarketCap, getPriceChangeColour } from '../utils/formatters';
+import Tooltip from './Tooltip.tsx';
+import { TOOLTIPS } from '../utils/tooltips';
 
 interface CoinCardProps {
   coin: Coin;
@@ -15,66 +15,105 @@ interface CoinCardProps {
 }
 
 const CoinCard = ({ coin, currency }: CoinCardProps) => {
-  // useNavigate lets us programmatically change the route
-  // when the user clicks a card — cleaner than wrapping in an <a> tag
   const navigate = useNavigate();
-
-  const handleClick = () => {
-    navigate(`/coin/${coin.id}`);
-  };
-
+  const isPositive = coin.price_change_percentage_24h >= 0;
   const priceChangeColour = getPriceChangeColour(coin.price_change_percentage_24h);
-  const isPositive = coin.price_change_percentage_24h > 0;
 
   return (
     <div
-      onClick={handleClick}
+      onClick={() => navigate(`/coin/${coin.id}`)}
       style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '16px 20px',
         marginBottom: '10px',
-        backgroundColor: '#1e1e2e',
-        borderRadius: '12px',
+        backgroundColor: '#16162a',
+        borderRadius: '16px',
         cursor: 'pointer',
-        border: '1px solid #2e2e3e',
-        transition: 'background-color 0.2s ease',
+        border: '1px solid #2e2e4e',
+        transition: 'all 0.2s ease',
       }}
-      // Inline hover effect via JS since we're not using CSS modules yet
-      onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#2a2a3e')}
-      onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#1e1e2e')}
+      onMouseEnter={e => {
+        e.currentTarget.style.backgroundColor = '#1e1e3e';
+        e.currentTarget.style.borderColor = '#6366f1';
+        e.currentTarget.style.transform = 'translateY(-1px)';
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.backgroundColor = '#16162a';
+        e.currentTarget.style.borderColor = '#2e2e4e';
+        e.currentTarget.style.transform = 'translateY(0)';
+      }}
     >
-      {/* Left section: rank, logo, name */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <span style={{ color: '#6b7280', width: '24px', textAlign: 'right' }}>
+      {/* Left: rank, logo, name */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        {/* Rank badge */}
+        <span style={{
+          color: '#4e4e7e',
+          fontSize: '13px',
+          fontWeight: 600,
+          width: '20px',
+          textAlign: 'center',
+        }}>
           {coin.market_cap_rank}
         </span>
+
+        {/* Coin logo */}
         <img
           src={coin.image}
           alt={`${coin.name} logo`}
-          width={36}
-          height={36}
+          width={42}
+          height={42}
           style={{ borderRadius: '50%' }}
         />
+
+        {/* Name and symbol */}
         <div>
-          <div style={{ fontWeight: 600, color: '#f1f1f1' }}>{coin.name}</div>
-          <div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>
+          <div style={{ fontWeight: 700, fontSize: '15px', color: '#f1f1f1' }}>
+            {coin.name}
+          </div>
+          <div style={{
+            fontSize: '12px',
+            color: '#6b7280',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          }}>
             {coin.symbol}
           </div>
         </div>
       </div>
 
-      {/* Right section: price, 24h change, market cap */}
+      {/* Right: price info */}
       <div style={{ textAlign: 'right' }}>
-        <div style={{ fontWeight: 600, color: '#f1f1f1' }}>
+        {/* Current price */}
+        <div style={{ fontWeight: 700, fontSize: '15px', color: '#f1f1f1' }}>
           {formatCurrency(coin.current_price, currency)}
         </div>
-        <div style={{ fontSize: '13px', color: priceChangeColour }}>
-          {isPositive ? '▲' : '▼'} {Math.abs(coin.price_change_percentage_24h).toFixed(2)}%
+
+        {/* 24h change badge */}
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+          backgroundColor: isPositive ? '#0f2d1f' : '#2d0f0f',
+          color: priceChangeColour,
+          borderRadius: '6px',
+          padding: '2px 8px',
+          fontSize: '12px',
+          fontWeight: 600,
+          margin: '4px 0',
+        }}>
+          <Tooltip text={TOOLTIPS.change24h}>
+            {isPositive ? '▲' : '▼'} {Math.abs(coin.price_change_percentage_24h).toFixed(2)}%
+          </Tooltip>
         </div>
+
+        {/* Market cap */}
         <div style={{ fontSize: '12px', color: '#6b7280' }}>
-          MCap: {formatMarketCap(coin.market_cap, currency)}
+          <Tooltip text={TOOLTIPS.marketCap}>
+            MCap
+          </Tooltip>
+          {': '}{formatMarketCap(coin.market_cap, currency)}
         </div>
       </div>
     </div>

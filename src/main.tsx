@@ -17,3 +17,7 @@ createRoot(document.getElementById('root')!).render(
     </Provider>
   </StrictMode>
 );
+
+//temp
+
+console.log('API KEY:', import.meta.env.VITE_COINGECKO_API_KEY);

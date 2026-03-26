@@ -1,5 +1,8 @@
 /* src/index.css */
-/* Reset browser defaults so our styling is consistent across browsers */
+/* Using a softer, warmer dark theme instead of the cold blue-black.
+   Inter is a highly readable font used by many fintech apps. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -7,7 +10,20 @@
 }
 
 body {
-  background-color: #13131f;
+  background-color: #0f0f1a;
   color: #f1f1f1;
-  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Smooth scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #1a1a2e;
+}
+::-webkit-scrollbar-thumb {
+  background: #3e3e6e;
+  border-radius: 3px;
 }
