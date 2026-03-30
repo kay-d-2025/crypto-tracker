@@ -1,6 +1,4 @@
 // src/components/CurrencySelector.tsx
-// Redesigned to be more visually intuitive — pill buttons instead of
-// a dropdown, so the user can see all options at a glance.
 
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { setCurrency } from '../store/currencySlice';
@@ -20,6 +18,7 @@ const CurrencySelector = () => {
   return (
     <div style={{
       display: 'flex',
+      flexWrap: 'wrap', // wraps to next line on very small screens
       gap: '6px',
       backgroundColor: '#1a1a2e',
       padding: '4px',
@@ -35,11 +34,12 @@ const CurrencySelector = () => {
             color: selected === option.value ? '#fff' : '#6b7280',
             border: 'none',
             borderRadius: '8px',
-            padding: '6px 12px',
+            padding: '6px 10px',
             fontSize: '13px',
             fontWeight: selected === option.value ? 600 : 400,
             cursor: 'pointer',
             transition: 'all 0.2s ease',
+            whiteSpace: 'nowrap',
           }}
         >
           {option.symbol} {option.label}

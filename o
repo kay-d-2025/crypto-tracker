@@ -1,0 +1,37 @@
+[33ma204e32[m[33m ([m[1;36mHEAD -> [m[1;32mfeature/responsive[m[33m, [m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m HEAD@{0}: checkout: moving from main to feature/responsive
+[33ma204e32[m[33m ([m[1;36mHEAD -> [m[1;32mfeature/responsive[m[33m, [m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m HEAD@{1}: checkout: moving from feature/polish to main
+[33me14dc85[m[33m ([m[1;31morigin/feature/polish[m[33m, [m[1;32mfeature/polish[m[33m)[m HEAD@{2}: commit: fix: use HashRouter for GitHub Pages compatibility and other polishes
+[33m7ee1bbf[m HEAD@{3}: commit: fix: add 404 redirect for GitHub Pages routing
+[33mff7844e[m HEAD@{4}: commit: feat: configure GitHub Pages deployment + other enhancements and polishes made
+[33md3435d3[m HEAD@{5}: commit: feat: add CoinGecko attribution, tooltips and UI redesign
+[33m5a7c7ab[m HEAD@{6}: checkout: moving from main to feature/polish
+[33ma204e32[m[33m ([m[1;36mHEAD -> [m[1;32mfeature/responsive[m[33m, [m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m HEAD@{7}: pull: Fast-forward
+[33mff9a179[m HEAD@{8}: checkout: moving from feature/polish to main
+[33m5a7c7ab[m HEAD@{9}: commit: style: add loading spinner, polish UI and add README
+[33mff9a179[m HEAD@{10}: checkout: moving from main to feature/polish
+[33mff9a179[m HEAD@{11}: pull: Fast-forward
+[33meb84b75[m HEAD@{12}: checkout: moving from feature/price-charts to main
+[33m9d07a33[m[33m ([m[1;31morigin/feature/price-charts[m[33m, [m[1;32mfeature/price-charts[m[33m)[m HEAD@{13}: commit: feat: add historical price chart with time range selector AND fix: add retry logic to API calls for rate limit handling
+[33meb84b75[m HEAD@{14}: checkout: moving from main to feature/price-charts
+[33meb84b75[m HEAD@{15}: pull: Fast-forward
+[33m47d12a3[m HEAD@{16}: checkout: moving from feature/coin-detail to main
+[33m61fa21f[m[33m ([m[1;31morigin/feature/coin-detail[m[33m, [m[1;32mfeature/coin-detail[m[33m)[m HEAD@{17}: commit: feat: build CoinDetail page with stats grid
+[33m47d12a3[m HEAD@{18}: checkout: moving from main to feature/coin-detail
+[33m47d12a3[m HEAD@{19}: pull: Fast-forward
+[33m0252c01[m HEAD@{20}: checkout: moving from feature/dashboard to main
+[33mf5ac4ba[m[33m ([m[1;31morigin/feature/dashboard[m[33m, [m[1;32mfeature/dashboard[m[33m)[m HEAD@{21}: commit: feat: build Dashboard with top 10 coins and currency selector
+[33m1bf5bb4[m[33m ([m[1;31morigin/feature/redux-store[m[33m, [m[1;32mfeature/redux-store[m[33m)[m HEAD@{22}: checkout: moving from feature/redux-store to feature/dashboard
+[33m1bf5bb4[m[33m ([m[1;31morigin/feature/redux-store[m[33m, [m[1;32mfeature/redux-store[m[33m)[m HEAD@{23}: commit: feat: add Redux store with currency and coins slices
+[33m0252c01[m HEAD@{24}: checkout: moving from main to feature/redux-store
+[33m0252c01[m HEAD@{25}: pull: Fast-forward
+[33m2ba3c19[m HEAD@{26}: checkout: moving from feature/routing to main
+[33m37cef92[m[33m ([m[1;31morigin/feature/routing[m[33m, [m[1;32mfeature/routing[m[33m)[m HEAD@{27}: commit: feat: add routing and page shells
+[33m2ba3c19[m HEAD@{28}: checkout: moving from main to feature/routing
+[33m2ba3c19[m HEAD@{29}: checkout: moving from feature/api-layer to main
+[33mac80e31[m[33m ([m[1;31morigin/feature/api-layer[m[33m, [m[1;32mfeature/api-layer[m[33m)[m HEAD@{30}: commit: feat: add CoinGecko API service layer
+[33mded4f6b[m[33m ([m[1;31morigin/feature/project-structure[m[33m, [m[1;32mfeature/project-structure[m[33m)[m HEAD@{31}: checkout: moving from feature/project-structure to feature/api-layer
+[33mded4f6b[m[33m ([m[1;31morigin/feature/project-structure[m[33m, [m[1;32mfeature/project-structure[m[33m)[m HEAD@{32}: commit: feat: add folder structure, TypeScript types and utility formatters
+[33m2ba3c19[m HEAD@{33}: checkout: moving from main to feature/project-structure
+[33m2ba3c19[m HEAD@{34}: commit: chore: install project dependencies
+[33me4e4874[m HEAD@{35}: Branch: renamed refs/heads/master to refs/heads/main
+[33me4e4874[m HEAD@{37}: commit (initial): init: scaffold Vite React TS project
