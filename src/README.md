@@ -67,3 +67,4 @@ src/
   The app handles this automatically with a retry mechanism, but switching
   between time ranges quickly may trigger a brief delay.
 - All prices default to ZAR as per the project specification.
+- Bundle size could be reduced further with route-based code splitting via React.lazy()
