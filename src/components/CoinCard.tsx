@@ -1,13 +1,11 @@
 // src/components/CoinCard.tsx
-// Redesigned to feel warmer and more approachable.
-// Uses a card-style layout with a subtle gradient on hover,
-// clear visual hierarchy, and friendly colour coding.
 
 import { useNavigate } from 'react-router-dom';
 import type { Coin, SupportedCurrency } from '../types/coin';
 import { formatCurrency, formatMarketCap, getPriceChangeColour } from '../utils/formatters';
-import Tooltip from './Tooltip.tsx';
+import Tooltip from './Tooltip';
 import { TOOLTIPS } from '../utils/tooltips';
+import useWindowSize from '../hooks/useWindowSize';
 
 interface CoinCardProps {
   coin: Coin;
@@ -16,6 +14,7 @@ interface CoinCardProps {
 
 const CoinCard = ({ coin, currency }: CoinCardProps) => {
   const navigate = useNavigate();
+  const { isMobile } = useWindowSize();
   const isPositive = coin.price_change_percentage_24h >= 0;
   const priceChangeColour = getPriceChangeColour(coin.price_change_percentage_24h);
 
@@ -24,15 +23,18 @@ const CoinCard = ({ coin, currency }: CoinCardProps) => {
       onClick={() => navigate(`/coin/${coin.id}`)}
       style={{
         display: 'flex',
-        alignItems: 'center',
+        // Stack vertically on mobile, horizontal on larger screens
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'flex-start' : 'center',
         justifyContent: 'space-between',
-        padding: '16px 20px',
+        padding: isMobile ? '14px 16px' : '16px 20px',
         marginBottom: '10px',
         backgroundColor: '#16162a',
         borderRadius: '16px',
         cursor: 'pointer',
         border: '1px solid #2e2e4e',
         transition: 'all 0.2s ease',
+        gap: isMobile ? '12px' : '0',
       }}
       onMouseEnter={e => {
         e.currentTarget.style.backgroundColor = '#1e1e3e';
@@ -47,7 +49,6 @@ const CoinCard = ({ coin, currency }: CoinCardProps) => {
     >
       {/* Left: rank, logo, name */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-        {/* Rank badge */}
         <span style={{
           color: '#4e4e7e',
           fontSize: '13px',
@@ -57,19 +58,15 @@ const CoinCard = ({ coin, currency }: CoinCardProps) => {
         }}>
           {coin.market_cap_rank}
         </span>
-
-        {/* Coin logo */}
         <img
           src={coin.image}
           alt={`${coin.name} logo`}
-          width={42}
-          height={42}
+          width={isMobile ? 36 : 42}
+          height={isMobile ? 36 : 42}
           style={{ borderRadius: '50%' }}
         />
-
-        {/* Name and symbol */}
         <div>
-          <div style={{ fontWeight: 700, fontSize: '15px', color: '#f1f1f1' }}>
+          <div style={{ fontWeight: 700, fontSize: isMobile ? '14px' : '15px', color: '#f1f1f1' }}>
             {coin.name}
           </div>
           <div style={{
@@ -83,14 +80,11 @@ const CoinCard = ({ coin, currency }: CoinCardProps) => {
         </div>
       </div>
 
-      {/* Right: price info */}
-      <div style={{ textAlign: 'right' }}>
-        {/* Current price */}
-        <div style={{ fontWeight: 700, fontSize: '15px', color: '#f1f1f1' }}>
+      {/* Right: price info — aligns left on mobile, right on desktop */}
+      <div style={{ textAlign: isMobile ? 'left' : 'right', paddingLeft: isMobile ? '34px' : '0' }}>
+        <div style={{ fontWeight: 700, fontSize: isMobile ? '14px' : '15px', color: '#f1f1f1' }}>
           {formatCurrency(coin.current_price, currency)}
         </div>
-
-        {/* 24h change badge */}
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -107,12 +101,8 @@ const CoinCard = ({ coin, currency }: CoinCardProps) => {
             {isPositive ? '▲' : '▼'} {Math.abs(coin.price_change_percentage_24h).toFixed(2)}%
           </Tooltip>
         </div>
-
-        {/* Market cap */}
         <div style={{ fontSize: '12px', color: '#6b7280' }}>
-          <Tooltip text={TOOLTIPS.marketCap}>
-            MCap
-          </Tooltip>
+          <Tooltip text={TOOLTIPS.marketCap}>MCap</Tooltip>
           {': '}{formatMarketCap(coin.market_cap, currency)}
         </div>
       </div>
