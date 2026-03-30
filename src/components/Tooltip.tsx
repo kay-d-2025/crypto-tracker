@@ -68,7 +68,7 @@ const Tooltip = ({ text, children }: TooltipProps) => {
 
       {visible && (
         <div style={{
-          position: 'absolute',
+          position: 'fixed',
           bottom: '130%',
           // On mobile keep tooltip within screen bounds
           left: '50%',
@@ -82,7 +82,8 @@ const Tooltip = ({ text, children }: TooltipProps) => {
           fontSize: '12px',
           lineHeight: '1.7',
           color: '#c8c8e8',
-          zIndex: 100,
+          maxWidth: 'min(260px, 90vw)',
+          zIndex: 9999,
           pointerEvents: 'none',
           boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
         }}>

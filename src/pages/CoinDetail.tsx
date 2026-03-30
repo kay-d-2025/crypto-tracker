@@ -303,6 +303,29 @@ const CoinDetail = () => {
           </>
         )}
       </div>
+
+    {/* CoinGecko attribution */}
+    <div style={{
+      textAlign: 'center',
+      padding: '24px 0 0',
+      fontSize: '12px',
+      color: '#4e4e7e',
+    }}>
+      
+      <a  href="https://www.coingecko.com?utm_source=crypto-tracker&utm_medium=referral"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img
+          src="https://static.coingecko.com/s/coingecko-logo-8903d34ce19ca4be1c81f0db30e924154750d93febb0f16b4e2af8aa5e5b9e0b.png"
+          alt="Powered by CoinGecko"
+          style={{ height: '20px', verticalAlign: 'middle' }}
+        />
+      </a>
+    </div>
+
+
+
     </div>
   );
 };
