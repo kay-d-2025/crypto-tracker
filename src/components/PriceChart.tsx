@@ -1,8 +1,4 @@
 // src/components/PriceChart.tsx
-// Renders a line chart of historical price data using Recharts.
-// Recharts is a React-native charting library built on D3 — we chose it
-// because it integrates naturally with React's component model and
-// handles responsiveness well out of the box.
 
 import {
   ResponsiveContainer,
@@ -29,9 +25,7 @@ interface PriceChartProps {
   coinName: string;
 }
 
-// Formats a timestamp into a readable label for the X axis.
-// The format changes depending on the time range selected —
-// hourly labels for 24h, daily for longer ranges.
+// The format changes depending on the time range selected
 const formatXAxisLabel = (timestamp: number, timeRange: TimeRange): string => {
   const date = new Date(timestamp);
   if (timeRange === '24h') {
@@ -40,9 +34,6 @@ const formatXAxisLabel = (timestamp: number, timeRange: TimeRange): string => {
   return date.toLocaleDateString('en-ZA', { month: 'short', day: 'numeric' });
 };
 
-// Custom tooltip shown when hovering over the chart
-// We build a custom one instead of using the default so we can
-// format the price correctly with our currency formatter
 const CustomTooltip = ({
   active,
   payload,
@@ -82,17 +73,13 @@ const PriceChart = ({
   onTimeRangeChange,
   coinName,
 }: PriceChartProps) => {
-  // Transform raw PricePoint tuples into objects Recharts can work with.
-  // Recharts expects data as an array of objects, not tuples.
-  // We keep the raw tuple alongside so the tooltip can access both values.
   const chartData = priceHistory.map(([timestamp, price]) => ({
     timestamp,
     price,
     raw: [timestamp, price] as PricePoint,
   }));
 
-  // Determine the colour of the line based on whether price went up or down
-  // over the selected period — green if up, red if down
+  // line colour bused on if price went up or down
   const lineColour = (() => {
     if (chartData.length < 2) return '#6366f1';
     return chartData[chartData.length - 1].price >= chartData[0].price
@@ -170,7 +157,7 @@ const PriceChart = ({
               stroke="#6b7280"
               fontSize={11}
               width={90}
-              // Auto-scale the Y axis to the data range for better visibility
+              // Auto-scale the Y axis to the data range (better visibility)
               domain={['auto', 'auto']}
             />
             <Tooltip content={<CustomTooltip currency={currency} />} />
@@ -179,7 +166,6 @@ const PriceChart = ({
               dataKey="price"
               stroke={lineColour}
               strokeWidth={2}
-              // Hiding dots keeps the chart clean for large datasets
               dot={false}
               activeDot={{ r: 4, fill: lineColour }}
             />

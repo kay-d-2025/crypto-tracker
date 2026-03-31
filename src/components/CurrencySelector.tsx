@@ -1,6 +1,4 @@
 // src/components/CurrencySelector.tsx
-// Redesigned to be more visually intuitive — pill buttons instead of
-// a dropdown, so the user can see all options at a glance.
 
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { setCurrency } from '../store/currencySlice';

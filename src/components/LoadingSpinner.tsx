@@ -1,7 +1,4 @@
 // src/components/LoadingSpinner.tsx
-// A simple animated spinner used during data fetching.
-// Extracting this into its own component means we use the same
-// loading indicator everywhere in the app — consistent UX.
 
 const LoadingSpinner = ({ message = 'Loading...' }: { message?: string }) => {
   return (

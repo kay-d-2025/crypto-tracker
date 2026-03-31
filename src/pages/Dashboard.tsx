@@ -1,44 +1,86 @@
 // src/pages/Dashboard.tsx
-// Redesigned with a friendlier header section and warmer overall feel.
-// The subtitle copy is written to welcome non-technical users.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { fetchTopCoins } from '../api';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { setCoins, selectCachedCoins } from '../store/coinsSlice';
+import { setCoins, selectCachedPage } from '../store/coinsSlice';
 import type { Coin } from '../types/coin';
 import CoinCard from '../components/CoinCard';
 import CurrencySelector from '../components/CurrencySelector';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { store } from '../store';
+// import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
+  // const navigate = useNavigate();
   const currency = useAppSelector(state => state.currency.selected);
-  const cachedCoins = useAppSelector(state => selectCachedCoins(state, currency));
-  const coins = cachedCoins ?? [];
 
+  const [page, setPage] = useState(1);
+  const [allCoins, setAllCoins] = useState<Coin[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Reset everything when currency changes
   useEffect(() => {
-    if (cachedCoins) return;
+    setPage(1);
+    setAllCoins([]);
+    setHasMore(true);
+  }, [currency]);
+
+  // Fetch a page, use cache if available
+  useEffect(() => {
+    const cachedPage = selectCachedPage(
+      { coins: store.getState().coins },
+      currency,
+      page
+    );
+
+    if (cachedPage) {
+      setAllCoins(prev =>
+        page === 1 ? cachedPage : [...prev, ...cachedPage]
+      );
+      if (page >= 4 || cachedPage.length < 25) setHasMore(false);
+      return;
+    }
 
     const loadCoins = async () => {
-      setLoading(true);
+      if (page === 1) setLoading(true);
+      else setLoadingMore(true);
       setError(null);
       try {
-        const data = await fetchTopCoins(currency, 10);
-        dispatch(setCoins({ coins: data, currency }));
+        const data = await fetchTopCoins(currency, 25, page);
+        dispatch(setCoins({ coins: data, currency, page }));
+        setAllCoins(prev => page === 1 ? data : [...prev, ...data]);
+        if (page >= 4 || data.length < 25) setHasMore(false);
       } catch (err) {
         setError('Failed to fetch cryptocurrency data. Please try again.');
         console.error('Dashboard fetch error:', err);
       } finally {
         setLoading(false);
+        setLoadingMore(false);
       }
     };
 
     loadCoins();
-  }, [currency, dispatch, cachedCoins]);
+  }, [currency, page]);
+
+  // IntersectionObserver: triggers next page when bottom sentinel is visible
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore && !loading) {
+          setPage(prev => prev + 1);
+        }
+      },
+      { threshold: 1.0 }
+    );
+    if (bottomRef.current) observer.observe(bottomRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, loading]);
 
   return (
     <div style={{
@@ -101,7 +143,7 @@ const Dashboard = () => {
           </div>
 
           {/* Summary stats bar */}
-          {coins.length > 0 && (
+          {allCoins.length > 0 && (
             <div style={{
               display: 'flex',
               gap: '24px',
@@ -109,13 +151,13 @@ const Dashboard = () => {
             }}>
               <div style={{ fontSize: '13px', color: '#6b7280' }}>
                 <span style={{ color: '#818cf8', fontWeight: 600 }}>
-                  {coins.filter(c => c.price_change_percentage_24h >= 0).length}
+                  {allCoins.filter(c => c.price_change_percentage_24h >= 0).length}
                 </span>
                 {' '}coins up today
               </div>
               <div style={{ fontSize: '13px', color: '#6b7280' }}>
                 <span style={{ color: '#f87171', fontWeight: 600 }}>
-                  {coins.filter(c => c.price_change_percentage_24h < 0).length}
+                  {allCoins.filter(c => c.price_change_percentage_24h < 0).length}
                 </span>
                 {' '}coins down today
               </div>
@@ -152,14 +194,32 @@ const Dashboard = () => {
             }}>
               TOP 10 BY MARKET CAP
             </p>
-            {coins.map((coin: Coin) => (
+            
+            {allCoins.map((coin: Coin) => (
               <CoinCard key={coin.id} coin={coin} currency={currency} />
             ))}
+
+            {/* Invisible sentinel div: triggers next page load when scrolled into view */}
+            <div ref={bottomRef} style={{ height: '1px' }} />
+
+            {loadingMore && <LoadingSpinner message="Loading more coins..." />}
+
+            {!hasMore && allCoins.length > 0 && (
+              <p style={{
+                textAlign: 'center',
+                color: '#4e4e7e',
+                fontSize: '13px',
+                padding: '16px 0 0',
+              }}>
+                You've seen the top 100 coins 🎉
+              </p>
+            )}
+
           </>
         )}
       </div>
 
-      {/* CoinGecko attribution — required by their API terms of service */}
+      {/* CoinGecko attribution: required by their API terms of service */}
       <div style={{
         textAlign: 'center',
         padding: '24px',

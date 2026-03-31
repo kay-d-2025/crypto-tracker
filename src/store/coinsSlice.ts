@@ -1,7 +1,4 @@
 // src/store/coinsSlice.ts
-// Updated to cache results per currency — previously we only stored one
-// list regardless of currency, meaning switching USD → ZAR → USD would
-// trigger 3 API calls. Now each currency has its own cached list.
 
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
@@ -11,13 +8,11 @@ import type { Coin, SupportedCurrency } from '../types/coin';
 export const CACHE_DURATION_MS = 5 * 60 * 1000;
 
 interface CurrencyCache {
-  list: Coin[];
-  lastUpdated: number; // Unix timestamp in ms
+  pages: Partial<Record<number, Coin[]>>; // keyed by page number
+  lastUpdated: number;
 }
 
 interface CoinsState {
-  // Key is the currency string e.g. 'zar', 'usd'
-  // Each currency gets its own cached list and timestamp
   cachesByCurrency: Partial<Record<SupportedCurrency, CurrencyCache>>;
 }
 
@@ -31,36 +26,32 @@ const coinsSlice = createSlice({
   reducers: {
     setCoins(
       state,
-      action: PayloadAction<{ coins: Coin[]; currency: SupportedCurrency }>
+      action: PayloadAction<{ coins: Coin[]; currency: SupportedCurrency; page: number }>
     ) {
-      const { coins, currency } = action.payload;
-      // Store the result under the currency key with a fresh timestamp
+      const { coins, currency, page } = action.payload;
+      const existing = state.cachesByCurrency[currency];
       state.cachesByCurrency[currency] = {
-        list: coins,
+        pages: {
+          ...(existing?.pages ?? {}),
+          [page]: coins,
+        },
         lastUpdated: Date.now(),
       };
-    },
-    clearCoins(state) {
-      state.cachesByCurrency = {};
     },
   },
 });
 
-export const { setCoins, clearCoins } = coinsSlice.actions;
+export const { setCoins } = coinsSlice.actions;
 export default coinsSlice.reducer;
 
-// Selector that returns cached coins for a given currency if still fresh,
-// or null if the cache is missing or expired.
-// Putting this logic here keeps it close to the state it operates on.
-export const selectCachedCoins = (
+export const selectCachedPage = (
   state: { coins: CoinsState },
-  currency: SupportedCurrency
+  currency: SupportedCurrency,
+  page: number
 ): Coin[] | null => {
   const cache = state.coins.cachesByCurrency[currency];
   if (!cache) return null;
-
   const isStale = Date.now() - cache.lastUpdated > CACHE_DURATION_MS;
   if (isStale) return null;
-
-  return cache.list;
+  return cache.pages[page] ?? null;
 };

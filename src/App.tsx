@@ -1,10 +1,4 @@
 // src/App.tsx
-// Using HashRouter instead of BrowserRouter for GitHub Pages compatibility.
-// BrowserRouter uses clean URLs (/coin/bitcoin) which GitHub Pages can't handle
-// since it's a static host — it doesn't know to serve index.html for every path.
-// HashRouter uses hash-based URLs (/#/coin/bitcoin) which always load index.html
-// first, then React Router handles the routing client-side. Not as pretty but
-// works perfectly on static hosts like GitHub Pages.
 
 import { useEffect } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';

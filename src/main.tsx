@@ -1,6 +1,4 @@
 // src/main.tsx
-// The Redux Provider makes the store available to every component in the tree
-// It must wrap the entire app (done here at the root level)
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -17,7 +15,5 @@ createRoot(document.getElementById('root')!).render(
     </Provider>
   </StrictMode>
 );
-
-//temp
 
 console.log('API KEY:', import.meta.env.VITE_COINGECKO_API_KEY);

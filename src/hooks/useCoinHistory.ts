@@ -1,16 +1,9 @@
 // src/hooks/useCoinHistory.ts
-// A custom hook that encapsulates fetching historical price data.
-// Custom hooks are a React pattern for extracting reusable stateful logic
-// out of components — the component just calls this hook and gets back
-// the data it needs without caring about how it was fetched.
 
 import { useState, useEffect } from 'react';
 import { fetchCoinHistory } from '../api';
 import type { PricePoint, SupportedCurrency } from '../types/coin';
 
-// The time range options we expose in the UI
-// Using a const object instead of an enum — simpler and works better
-// with TypeScript's type inference
 export const TIME_RANGES = {
   '24h': 1,
   '7d': 7,
@@ -36,7 +29,7 @@ const useCoinHistory = (
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Default to 7 day view — good balance of detail and context
+  // Default to 7 day view
   const [timeRange, setTimeRange] = useState<TimeRange>('7d');
 
   useEffect(() => {

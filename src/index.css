@@ -1,6 +1,5 @@
 /* src/index.css */
-/* Using a softer, warmer dark theme instead of the cold blue-black.
-   Inter is a highly readable font used by many fintech apps. */
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 *, *::before, *::after {
@@ -16,7 +15,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Smooth scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
 }

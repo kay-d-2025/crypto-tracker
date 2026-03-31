@@ -1,6 +1,4 @@
 // src/pages/CoinDetail.tsx
-// Redesigned with a friendlier layout — clear sections, tooltips on all
-// stats, and a welcoming tone for users new to crypto.
 
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -14,7 +12,6 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import Tooltip from '../components/Tooltip';
 import { TOOLTIPS } from '../utils/tooltips';
 
-// Stat card now accepts ReactNode for label so we can wrap with Tooltip
 const StatCard = ({ label, value }: { label: React.ReactNode; value: string }) => (
   <div style={{
     backgroundColor: '#16162a',

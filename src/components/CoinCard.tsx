@@ -1,7 +1,4 @@
 // src/components/CoinCard.tsx
-// Redesigned to feel warmer and more approachable.
-// Uses a card-style layout with a subtle gradient on hover,
-// clear visual hierarchy, and friendly colour coding.
 
 import { useNavigate } from 'react-router-dom';
 import type { Coin, SupportedCurrency } from '../types/coin';
