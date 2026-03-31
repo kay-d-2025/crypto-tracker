@@ -5,6 +5,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import CoinDetail from './pages/CoinDetail';
 import NotFound from './pages/NotFound';
+import Wallet from './pages/Wallet';
 
 const App = () => {
   useEffect(() => {
@@ -21,6 +22,7 @@ const App = () => {
         <Route path="/" element={<Dashboard />} />
         <Route path="/coin/:coinId" element={<CoinDetail />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/wallet" element={<Wallet />} />
       </Routes>
     </HashRouter>
   );

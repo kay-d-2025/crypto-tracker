@@ -12,6 +12,8 @@ option to switch between ZAR, USD, EUR, and BTC.
 - Currency selector (ZAR, USD, EUR, BTC)
 - Redux caching layer to minimise unnecessary API calls
 - Responsive dark-themed UI
+- Infinite scroll: dynamically loads up to top 100 ryptocurrencies as you scroll
+- MetaMask integration: connect your MetaMask wallet to view your ETH balance and ZAR value
 
 ## Tech Stack
 
@@ -22,6 +24,8 @@ option to switch between ZAR, USD, EUR, and BTC.
 - Recharts
 - Axios
 - CoinGecko Public API
+- Web3
+- ethers.js + MetaMask API
 
 ## Getting Started
 
@@ -68,3 +72,5 @@ src/
   between time ranges quickly may trigger a brief delay.
 - All prices default to ZAR as per the project specification.
 - Bundle size could be reduced further with route-based code splitting via React.lazy()
+- Infinite scroll loads 25 coins per page up to 100, with Redux caching per page and currency
+- MetaMask integration displays ETH balance and live ZAR value — ERC-20 token support is a future enhancement

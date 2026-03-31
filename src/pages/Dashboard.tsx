@@ -9,11 +9,11 @@ import CoinCard from '../components/CoinCard';
 import CurrencySelector from '../components/CurrencySelector';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { store } from '../store';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const dispatch = useAppDispatch();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const currency = useAppSelector(state => state.currency.selected);
 
   const [page, setPage] = useState(1);
@@ -140,6 +140,21 @@ const Dashboard = () => {
               </p>
             </div>
             <CurrencySelector />
+            <button
+              onClick={() => navigate('/wallet')}
+              style={{
+                backgroundColor: 'transparent',
+                border: '1px solid #2e2e4e',
+                borderRadius: '8px',
+                color: '#818cf8',
+                cursor: 'pointer',
+                padding: '8px 16px',
+                fontSize: '14px',
+                fontWeight: 500,
+              }}
+            >
+              🦊 My Wallet
+            </button>
           </div>
 
           {/* Summary stats bar */}
