@@ -25,6 +25,42 @@ const useMetaMask = () => {
     setState(prev => ({ ...prev, isInstalled }));
   }, []);
 
+  // Check if already connected on mount — avoids re-connecting on navigation
+  useEffect(() => {
+    if (typeof window.ethereum === 'undefined') return;
+
+    const checkExistingConnection = async () => {
+      try {
+        const accounts = (await window.ethereum!.request({
+          method: 'eth_accounts', // unlike eth_requestAccounts, this doesn't prompt
+        })) as string[];
+
+        if (accounts.length === 0) return;
+
+        const address = accounts[0];
+        const balanceHex = (await window.ethereum!.request({
+          method: 'eth_getBalance',
+          params: [address, 'latest'],
+        })) as string;
+
+        const balanceWei = BigInt(balanceHex);
+        const balanceEth = (Number(balanceWei) / 1e18).toFixed(4);
+
+        setState(prev => ({
+          ...prev,
+          isInstalled: true,
+          isConnected: true,
+          address,
+          ethBalance: balanceEth,
+        }));
+      } catch {
+        // Not connected — do nothing, user can connect manually
+      }
+    };
+
+    checkExistingConnection();
+  }, []);
+
   const connect = useCallback(async () => {
     if (!window.ethereum) return;
     setState(prev => ({ ...prev, connecting: true, error: null }));
